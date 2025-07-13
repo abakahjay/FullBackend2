@@ -23,8 +23,11 @@ To serve project with ngrok to colleages
 "C:\ProgramData\chocolatey\lib\ngrok\tools\ngrok.exe" start --all --config "C:\Users\user\.ngrok2\ngrok.yml"
 
 To run the ai server with fast api
-cd chatbot
-uvicorn serveai_fastapi:app --host 0.0.0.0 --port 5001 --reload
+1. cd chatbot
+2. uvicorn serveai_fastapi:app --host 0.0.0.0 --port 5001 --reload
+
+To run the backend
+1. npm start or node app.js
 
 <h1 id="openlabs-project">openlabs-project v1.0.0</h1>
 

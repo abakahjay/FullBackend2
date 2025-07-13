@@ -18,7 +18,7 @@ router.post('/ask', upload.single('image'), async (req, res) => {
     throw new BadRequestError("Please provide a prompt or image")
   }
   if (!provider) {
-    throw new BadRequestError("Please provide a provider(openai or local)")
+    throw new BadRequestError("Please provide a provider(openai or local or openrouter)")
   }
   console.log('\x1b[36m%s\x1b[0m', `Provider: ${provider}`)
 
@@ -51,6 +51,9 @@ router.post('/ask', upload.single('image'), async (req, res) => {
       input_prompt: prompt,
       response: result,
     });
+  }
+  if(provider!=='local'){
+    throw new BadRequestError("Please provide a valid provider(openai or local or openrouter)")
   }
 
   // ✅ Use your local model (default)

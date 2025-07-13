@@ -38,7 +38,7 @@ text_generator = pipeline(
     "text-generation",
     model=gpt_model,
     tokenizer=gpt_tokenizer,
-    max_length=150,
+    max_length=1500,
     do_sample=True,
     top_k=50,
     top_p=0.95,
