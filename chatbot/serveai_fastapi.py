@@ -38,7 +38,7 @@ text_generator = pipeline(
     "text-generation",
     model=gpt_model,
     tokenizer=gpt_tokenizer,
-    max_length=1500,
+    max_length=5000,
     do_sample=True,
     top_k=50,
     top_p=0.95,
@@ -95,6 +95,7 @@ async def ask(
             return JSONResponse(content={"error": "Provide a prompt or image"}, status_code=400)
 
     except Exception as e:
+        print(e)
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
