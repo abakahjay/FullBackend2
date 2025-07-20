@@ -160,3 +160,20 @@ exports.editUserProfilePic = async (req, res) => {
   res.status(StatusCodes.OK).json({message:`User: ${username} updated user profile pic successfully `,user});
 };
 
+// ✅ Delete a user by username
+exports.deleteUser = async (req, res) => {
+  const  username  = req.params.id;
+
+  if (!username) {
+    throw new BadRequestError('Please provide a username');
+  }
+
+  const user = await User.findOneAndDelete({ _id:username });
+
+  if (!user) {
+    throw new NotFoundError(`No user with username: ${username}`);
+  }
+
+  console.log('\x1b[31m%s\x1b[0m', `User: ${username} deleted successfully`);
+  res.status(StatusCodes.OK).json({ message: `User: ${username} deleted successfully`, user });
+};

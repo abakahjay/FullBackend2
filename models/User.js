@@ -80,7 +80,12 @@ const UserSchema = new mongoose.Schema({
     created:{
         type:Number,
         default:Date.now()
-    }
+    },
+    phone: String,
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
 },{ timestamps: true });
 //We can can also pass functions(middleware) to our model here`using the schema;
 //We can use .pre and .post to create  the function

@@ -1,5 +1,5 @@
-const fs = require('fs');
 require('dotenv').config();
+const fs = require('fs');
 require('express-async-errors');
 
 
@@ -38,6 +38,7 @@ const uploadRoutes = require("./routes/upload.js");
 const productsRouter = require('./routes/products.js')
 const cartRouter = require('./routes/cart.js')
 const ordersRouter = require('./routes/orders.js')
+const ordersdataRouter = require('./routes/MTNOrders.js')
 const testing1Router = require('./routes/testing1.js')
 const deliveryRouter = require('./routes/delivery.js')
 const changeDelRouter = require('./routes/cart2.js')
@@ -47,12 +48,19 @@ const userRoutes = require('./routes/userRoute');
 const userProfilePic = require('./routes/userProfilePic');
 const postRoutes = require('./routes/postRoute');
 const commentRoutes = require('./routes/commentRoute');
-const googleAuth =require('./routes/googleAuth');
+const googleAuth = require('./routes/googleAuth');
 const aiRoutes = require('./routes/chatAi');
 const aiModelRoutes = require('./routes/aiModel');
 const aiImageRoutes = require('./routes/sendAiImage');
+const uniServe = require('./routes/UniServe.js');//Uniserver
 const passport = require("passport");
-const { ClerkExpressRequireAuth }= require("@clerk/clerk-sdk-node");//This handles user logins  and stuff
+const downloadExcelRoute = require('./routes/downloadExcel');
+const ussdRoutes = require("./routes/ussdRoutes");
+const muviinRoutes = require("./routes/muviin");
+const ussd = require("./routes/ussd.js");
+const authMiddleware = require("./middleware/auth.js");
+const htmlAuth = require('./middleware/htmlAuth'); // Import it
+const { ClerkExpressRequireAuth } = require("@clerk/clerk-sdk-node");//This handles user logins  and stuff
 // console.log(ClerkExpressRequireAuth)
 
 
@@ -68,7 +76,7 @@ app.use(cors());//This allows connections from other ports
 const openApiPath = path.join(__dirname, 'oas-docs', 'openapi.json');
 if (fs.existsSync(openApiPath)) {
     const openApiSpec = JSON.parse(fs.readFileSync(openApiPath));
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec)); 
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 } else {
     console.warn('⚠️ Swagger UI not available yet. Make some API requests to generate openapi.json');
 }
@@ -90,8 +98,8 @@ app.use('/api/v1/userse', userProfilePic);
 //This is for posts
 
 app.use('/api/v1/posts', postRoutes);
-app.use('/api/v1/ai',aiImageRoutes );
-app.use('/api/v1/ai',aiModelRoutes  );
+app.use('/api/v1/ai', aiImageRoutes);
+app.use('/api/v1/ai', aiModelRoutes);
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -141,6 +149,7 @@ const io = require('socket.io')(server, {
 // }));
 // app.use(morgan('tiny'));
 app.use(express.static('./public'))
+app.use(express.static('./static'))
 
 
 // Use Helmet for security
@@ -172,6 +181,7 @@ app.use("/api/v1/auth", googleAuth);
 app.use('/api/v1/products', productsRouter)
 app.use('/api/v1/cart', cartRouter)
 app.use('/api/v1/orders', ordersRouter)
+app.use('/api/v1/ordersdata', ordersdataRouter)
 app.use('/api/v1/delivery', deliveryRouter)
 app.use('/api/v1/changedel', changeDelRouter)
 app.use('/api/v1/messages', messageRoutes);
@@ -180,8 +190,47 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/comments', commentRoutes);
 
 //This is for the Ai
-app.use('/api/v1/ai',aiRoutes );
+app.use('/api/v1/ai', aiRoutes);
 
+
+app.use('/api/v1/uniserve', uniServe);
+
+app.use('/api/v1/export', downloadExcelRoute);
+
+app.use("/api/v1/ussd", ussdRoutes);
+
+app.use("/api/v1/muviin", muviinRoutes);
+
+app.use("/api/v1/ussds", ussd);
+
+//This is the login page for the mtn data login
+
+
+// Loosen CSP to allow inline scripts and styles
+app.use((req, res, next) => {
+    res.setHeader(
+  "Content-Security-Policy",
+  "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://www.gravatar.com;"
+);
+
+    next();
+});
+
+app.get('/api/v1/bundle/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'login.html'));
+});
+
+//This is the dashboard page for the mtn data bundle page
+app.get('/api/v1/bundle/',  htmlAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'afrodata.html'));
+});
+app.get('/static/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'favicon.ico'));
+});
+
+app.get('/resetPassword', (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'resetPassword.html'));
+});
 
 
 //This is for the Ai Chatbot
@@ -219,8 +268,11 @@ const start = async () => {
     try {
         //Connect the Database
         //We must always include our connect database method in the server application
+        console.log(process.env.MONGO_URI)
         await connectDB(process.env.MONGO_URI).then(() => {
-            console.log('\x1b[36m%s\x1b[0m','🔄Connected to MongoDB...')
+            console.log('\x1b[36m%s\x1b[0m', '🔄Connected to MongoDB...')
+            console.log('\x1b[36m%s\x1b[0m','🔌 Connecting to:', process.env.MONGO_URI);
+
         })
         await expressOasGenerator.handleResponses(app, {
             specOutputPath: path.join(__dirname, 'oas-docs', 'openapi.json'),

@@ -11,12 +11,21 @@ const {
     userId,
     verifyEmail,
     logout,
-    changePassword
+    changePassword,
+    forgotPassword,
+    resetPassword
 } = require('../controllers/auth.js');
 
 
 
 
+
+
+
+
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 router.route("/signup").post(signUp)
 router.route("/login").post(login);

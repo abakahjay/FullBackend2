@@ -316,8 +316,32 @@
           "application/json"
         ],
         "parameters": [],
-        "responses": {},
-        "tags": []
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "msg": {
+                  "type": "string",
+                  "example": "Connection error."
+                },
+                "secret": {
+                  "type": "string",
+                  "example": ""
+                },
+                "error": {
+                  "type": "string",
+                  "example": "Connection error."
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "produces": [
+          "application/json"
+        ]
       }
     },
     "/api/v1/ai/gpio/update": {
@@ -1093,134 +1117,109 @@
             "required": true
           }
         ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Message updated successfully"
-                },
-                "updatedMessage": {
-                  "type": "object",
-                  "properties": {
-                    "_id": {
-                      "type": "string",
-                      "example": "6870d2f2c7320f78e4dbe87d"
-                    },
-                    "role": {
-                      "type": "string",
-                      "example": "user"
-                    },
-                    "parts": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "_id": {
-                            "type": "string"
-                          },
-                          "text": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "example": [
-                        {
-                          "_id": "6870d2f2c7320f78e4dbe87e",
-                          "text": "But you don't talk sense kraa oo,andbull shit"
-                        }
-                      ]
-                    }
-                  }
-                },
-                "updatedChat": {
-                  "type": "object",
-                  "properties": {
-                    "_id": {
-                      "type": "string",
-                      "example": "6870d292c7320f78e4dbe856"
-                    },
-                    "userId": {
-                      "type": "string",
-                      "example": "6858d55e4bd9b86450218c42"
-                    },
-                    "history": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "_id": {
-                            "type": "string"
-                          },
-                          "role": {
-                            "type": "string"
-                          },
-                          "parts": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "_id": {
-                                  "type": "string"
-                                },
-                                "text": {
-                                  "type": "string"
-                                }
-                              },
-                              "required": [
-                                "_id",
-                                "text"
-                              ]
-                            }
-                          },
-                          "img": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "_id",
-                          "role",
-                          "parts"
-                        ]
-                      },
-                      "example": [
-                        {
-                          "_id": "6870d292c7320f78e4dbe857",
-                          "role": "user",
-                          "parts": [
-                            {
-                              "_id": "6870d292c7320f78e4dbe858",
-                              "text": "."
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    "createdAt": {
-                      "type": "string",
-                      "example": "2025-07-11T09:00:02.472Z"
-                    },
-                    "updatedAt": {
-                      "type": "string",
-                      "example": "2025-07-11T09:07:56.306Z"
-                    },
-                    "__v": {
-                      "type": "number",
-                      "example": 1
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [],
-        "produces": [
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/uniserve/universities": {
+      "post": {
+        "summary": "/api/v1/uniserve/universities",
+        "consumes": [
           "application/json"
-        ]
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      },
+      "get": {
+        "summary": "/api/v1/uniserve/universities",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/uniserve/programs": {
+      "post": {
+        "summary": "/api/v1/uniserve/programs",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      },
+      "get": {
+        "summary": "/api/v1/uniserve/programs",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/uniserve/required_subjects": {
+      "get": {
+        "summary": "/api/v1/uniserve/required_subjects",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/uniserve/student-inputs": {
+      "post": {
+        "summary": "/api/v1/uniserve/student-inputs",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/uniserve/recommendations": {
+      "get": {
+        "summary": "/api/v1/uniserve/recommendations",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/export/download/{modelName}": {
+      "get": {
+        "summary": "/api/v1/export/download/{modelName}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "modelName",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/ussd": {
+      "post": {
+        "summary": "/api/v1/ussd",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
       }
     },
     "/api/chat": {
