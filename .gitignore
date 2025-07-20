@@ -2,3 +2,5 @@ node_modules
 
 .codegpt
 .MiniGPT-4
+
+chatbot/models/*
