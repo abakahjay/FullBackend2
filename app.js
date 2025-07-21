@@ -233,6 +233,11 @@ app.get('/resetPassword', (req, res) => {
 });
 
 
+app.get('/font-awesome/css/all.min.css', (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', '/font-awesome/css/all.min.css'));
+});
+
+
 //This is for the Ai Chatbot
 app.post('/api/chat', (req, res) => {
     const userMessage = req.body.message;

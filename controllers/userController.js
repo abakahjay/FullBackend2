@@ -91,8 +91,11 @@ exports.getUser = async (req, res) => {
     res.status(StatusCodes.OK).json({message:`User: ${id} found successfully `,user});
 };
 exports.getAllUsers = async (req, res) => {
-    
-    const users = await User.find({}).populate('followers following').sort('-created').limit(5);
+    let limit=Number(req.query.limit)
+    if(!limit){
+      limit=5;
+    }
+    const users = await User.find({}).populate('followers following').sort('-created').limit(limit);
     if(!users){
       throw new NotFoundError(`No users found in database`);
     }

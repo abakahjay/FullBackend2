@@ -18,21 +18,24 @@ const initiateBundle = async (req, res) => {
     if (!network || !bundle || !amount || !number || !fundsource || !selectedFSNetwork) {
         return res.status(400).json({ error: "Missing required fields" });
     }
+
+
+    const formatNumber = (num) => {
+        if (num.startsWith('0')) return '233' + num.slice(1);
+        return num;
+    };
     // Generate a unique external reference
     const extref = `vbundle_${crypto.randomUUID()}`;
     const formattedNumber = formatNumber(number);
 
     // Check if the number is whitelisted
-    const isWhitelisted = await Whitelist.findOne({ phone: formattedNumber });
-    if (!isWhitelisted) {
-        return res.status(400).json({
-            error: "Receiver is not eligible for data purchases. Number not whitelisted."
-        });
-    }
-    const formatNumber = (num) => {
-        if (num.startsWith('0')) return '233' + num.slice(1);
-        return num;
-    };
+    // const isWhitelisted = await Whitelist.findOne({ phone: formattedNumber });
+    // if (!isWhitelisted) {
+    //     return res.status(400).json({
+    //         error: "Receiver is not eligible for data purchases. Number not whitelisted."
+    //     });
+    // }
+    
 
     const payload = {
         type: 1,

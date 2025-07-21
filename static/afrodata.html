@@ -6,8 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AfroDataGH</title>
   <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" /> -->
+  <link
+        rel="stylesheet"
+        href="/font-awesome/css/all.min.css"
+    />
   <style>
     * {
       box-sizing: border-box;
@@ -41,6 +44,7 @@
       width: 16px;
       height: 16px;
       margin-left: 20px;
+      margin-right: 20px;
       cursor: pointer;
     }
 
@@ -421,8 +425,8 @@ main.collapsed {
     <div class="header-right">
       <i class="fa-solid fa-power-off notification" onclick="logout()" style="cursor:pointer;"></i>
       <!-- <img src="https://www.gravatar.com/avatar?d=mp" alt="Admin" class="avatar" /> -->
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <img id="profile-pic" src="https://www.gravatar.com/avatar?d=mp" alt="Admin" class="avatar" />
+      <div style="display: flex; align-items: center; gap: 10px;justify-content: center;" >
+        <!-- <img id="profile-pic" src="https://www.gravatar.com/avatar?d=mp" alt="Admin" class="avatar" /> -->
         <span id="user-role-text" style="font-weight: bold;"></span>
       </div>
       <p id="upload-statuss" style="font-size: 12px; color: #666;"></p>
@@ -568,7 +572,7 @@ main.collapsed {
       localStorage.setItem('userRole', datas.user.role);        // e.g. "admin" or "user"
       localStorage.setItem('username', datas.user.username);    // e.g. "BlessedJosh"
 
-      console.log(datas.user);
+      // console.log(datas.user);
       async function FetchImage() {
         try {
           const userId = localStorage.getItem('userId');
@@ -578,7 +582,7 @@ main.collapsed {
           // Set role/username beside avatar
           const roleTextEl = document.getElementById("user-role-text");
           if (userRole === 'admin') {
-            roleTextEl.textContent = "Administrator";
+            roleTextEl.textContent = "Admin";
             roleTextEl.style.color = "#e74c3c"; // red for emphasis
           } else {
             roleTextEl.textContent = username || "User";
@@ -666,7 +670,7 @@ main.collapsed {
       try {
         const res = await fetch("/api/v1/ordersdata");
         orders = await res.json();
-        console.log("Fetched orders:", orders);
+        // console.log("Fetched orders:", orders);
 
         tableBody.innerHTML = "";
         orders.forEach(order => {
@@ -714,10 +718,11 @@ document.querySelectorAll(".status-dropdown").forEach(select => {
 
     const result = await res.json();
     if (res.ok) {
-      alert("Status updated to " + result.updatedOrder.status);
+      // alert("Status updated to " + result.updatedOrder.status);
       fetchOrders(); // Refresh to reflect new status
     } else {
-      alert("Failed to update status: " + result.message);
+      // alert("Failed to update status: " + result.message);
+      console.log(result.message)
     }
   });
 });
@@ -739,7 +744,7 @@ document.querySelectorAll(".status-dropdown").forEach(select => {
         const csv = orders.map(o =>
           [
             new Date(o.createdAt).toLocaleString(),
-            o.recipient,
+            String(o.recipient),
             o.quantity,
             o.network,
             "GHS " + o.price,
@@ -783,7 +788,7 @@ document.querySelectorAll(".status-dropdown").forEach(select => {
 
     async function fetchUsers() {
       try {
-        const res = await fetch("/api/v1/users");
+        const res = await fetch(`/api/v1/users?limit=${5000000}`);
         const users = await res.json();
         console.log("Fetched users:", users);
 
@@ -866,7 +871,7 @@ document.querySelectorAll(".status-dropdown").forEach(select => {
   <button class="btn-perform" onclick='performOrder(${JSON.stringify(order)})' style="margin-left: 6px;">Verify</button>
 </td>
 
-      <td><span class="badge status-pending">${order.status}</span></td>
+      <td><span class="badge status-${order.status.toLowerCase()}">${order.status}</span></td>
       <td>${order.updated}</td>
       <td>
   <select class="status-dropdown" data-order-id="${order._id}">
@@ -925,10 +930,12 @@ document.querySelectorAll(".status-dropdown").forEach(select => {
 
       const result = await res.json();
       if (res.ok) {
-        alert("Status updated to " + result.updatedOrder.status);
+        console.log(result.updatedOrder.status)
+        // alert("Status updated to " + result.updatedOrder.status);
         fetchOrders();
       } else {
-        alert("Failed to update: " + result.message);
+        // alert("Failed to update: " + result.message);
+        console.log(result.message)
       }
     });
   });
