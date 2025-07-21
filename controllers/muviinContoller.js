@@ -1,12 +1,10 @@
 const axios = require("axios");
 const crypto = require("crypto");
-const Whitelist = require("../models/Whitelist.js");
 
 const MUVIIN_API_URL = "https://api.muviin.co/api/src/controllers/dev/index.php";
 const MUVIIN_API_KEY = "b0c566ea8c733da2afac09ffc31a3d7bab4e67fa3e633608dce69b9b26528aac";
 
 const initiateBundle = async (req, res) => {
-
     const {
         network,
         bundle,
@@ -15,37 +13,26 @@ const initiateBundle = async (req, res) => {
         fundsource,
         selectedFSNetwork,
     } = req.body;
+
     if (!network || !bundle || !amount || !number || !fundsource || !selectedFSNetwork) {
         return res.status(400).json({ error: "Missing required fields" });
     }
-
 
     const formatNumber = (num) => {
         if (num.startsWith('0')) return '233' + num.slice(1);
         return num;
     };
-    // Generate a unique external reference
+
     const extref = `vbundle_${crypto.randomUUID()}`;
-    const formattedNumber = formatNumber(number);
-
-    // Check if the number is whitelisted
-    // const isWhitelisted = await Whitelist.findOne({ phone: formattedNumber });
-    // if (!isWhitelisted) {
-    //     return res.status(400).json({
-    //         error: "Receiver is not eligible for data purchases. Number not whitelisted."
-    //     });
-    // }
-    
-
     const payload = {
         type: 1,
         function: "data-init",
-        network,
-        bundle,
-        amount,
+        network: String(network).toLowerCase(),              // Ensure lowercase
+        bundle: String(bundle),
+        amount: String(parseFloat(amount).toFixed(2)),       // Format as "10.00"
         number: formatNumber(number),
         fundsource: formatNumber(fundsource),
-        selectedFSNetwork,
+        selectedFSNetwork: String(selectedFSNetwork).toLowerCase(),
         extref,
     };
 
@@ -59,6 +46,8 @@ const initiateBundle = async (req, res) => {
             },
         });
 
+        console.log("✅ Muviin Response:", response.data);
+
         return res.status(200).json({
             message: "Muviin payment initiated successfully",
             data: response.data,
@@ -71,6 +60,12 @@ const initiateBundle = async (req, res) => {
                 detail: err.response.data,
             });
         }
+
+        console.error("🔴 Unexpected Muviin Error:", err.message);
+        return res.status(500).json({
+            error: "Internal server error",
+            detail: err.message,
+        });
     }
 };
 
