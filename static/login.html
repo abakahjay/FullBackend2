@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
   <title>Afrodatagh - Login & Signup</title>
   <style>
@@ -74,7 +75,8 @@
       margin-top: 10px;
     }
 
-    .forgot, .toggle {
+    .forgot,
+    .toggle {
       margin-top: 15px;
       display: block;
       color: #007bff;
@@ -114,31 +116,33 @@
       font-size: 14px;
       margin-top: 5px;
     }
-    .spinner {
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #00bfff;
-    border-radius: 50%;
-    width: 16px;
-    height: 16px;
-    animation: spin 0.6s linear infinite;
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 8px;
-  }
 
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #00bfff;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
+  <link rel="stylesheet" href="/font-awesome/css/all.min.css" />
 </head>
+
 <body>
 
   <div class="container">
@@ -190,16 +194,16 @@
     </form>
 
     <!-- Reset Password Form -->
-<form id="reset-form" style="display: none;">
-  <!-- <h2>Reset Password</h2>
+    <form id="reset-form" style="display: none;">
+      <!-- <h2>Reset Password</h2>
   <p>Send a password reset link to your email.</p> -->
-  <div class="form-group">
-    <i class="fa fa-envelope icon"></i>
-    <input type="email" id="reset-email" placeholder="Email" required />
-  </div>
-  <button type="submit">Send Email</button>
-  <a class="forgot" onclick="showLoginForm()">Login with Password</a>
-</form>
+      <div class="form-group">
+        <i class="fa fa-envelope icon"></i>
+        <input type="email" id="reset-email" placeholder="Email" required />
+      </div>
+      <button type="submit">Send Email</button>
+      <a class="forgot" onclick="showLoginForm()">Login with Password</a>
+    </form>
 
 
     <span class="toggle" onclick="toggleForms()">Don't have an account? Sign up</span>
@@ -255,24 +259,25 @@
       });
       button.disabled = false;
       button.innerHTML = "Log In";
-    //   console.log
+      //   console.log
       const data = await res.json();
       console.log(data)
       if (data.token) {
         localStorage.setItem(`token-${data.userId}`, data.token);
-        localStorage.setItem(`userId`,data.userId)
+        localStorage.setItem(`userId`, data.userId)
         sessionStorage.setItem(`token-${data.userId}`, data.token);
-        sessionStorage.setItem(`userId`,data.userId)
-        
-    }
+        sessionStorage.setItem(`userId`, data.userId)
+
+      }
       if (res.ok) {
-  responseMsg.innerHTML = `<p class="success">${data.message || "Login successful!"}</p>`;
-  setTimeout(() => {
-    window.location.href = `/api/v1/bundle?id=${data.userId}`; // Redirect to dashboard
-  }, 1000); // Optional delay
-} else {
-  responseMsg.innerHTML = `<p class="error">${data.msg || "Login failed."}</p>`;
-}
+        responseMsg.innerHTML = `<p class="success">${data.message || "Login successful!"}</p>`;
+        setTimeout(() => {
+          // window.location.href = `/api/v1/bundle?id=${data.userId}`; // Redirect to dashboard
+          window.location.href = `/afrodatahome`;
+        }, 1000); // Optional delay
+      } else {
+        responseMsg.innerHTML = `<p class="error">${data.msg || "Login failed."}</p>`;
+      }
 
     });
 
@@ -295,7 +300,7 @@
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username, firstName, lastName, email, password,phone })
+        body: JSON.stringify({ username, firstName, lastName, email, password, phone })
       });
       button.disabled = false;
       button.innerHTML = "Sign Up";
@@ -303,69 +308,71 @@
       console.log(data)
       if (data.token) {
         localStorage.setItem(`token-${data.userId}`, data.token);
-        localStorage.setItem(`userId`,data.userId)
+        localStorage.setItem(`userId`, data.userId)
         sessionStorage.setItem(`token-${data.userId}`, data.token);
-        sessionStorage.setItem(`userId`,data.userId)
-    }
+        sessionStorage.setItem(`userId`, data.userId)
+      }
       if (res.ok) {
-  responseMsg.innerHTML = `<p class="success">${data.message || "Login successful!"}</p>`;
-  setTimeout(() => {
-    window.location.href = `/api/v1/bundle?id=${data.userId}`; // Redirect to dashboard
-  }, 1000); // Optional delay
-} else {
-  responseMsg.innerHTML = `<p class="error">${data.msg || "Login failed."}</p>`;
-}
+        responseMsg.innerHTML = `<p class="success">${data.message || "Login successful!"}</p>`;
+        setTimeout(() => {
+          // window.location.href = `/api/v1/bundle?id=${data.userId}`; // Redirect to dashboard
+          window.location.href = `/afrodatahome`;
+        }, 1000); // Optional delay
+      } else {
+        responseMsg.innerHTML = `<p class="error">${data.msg || "Login failed."}</p>`;
+      }
 
     });
 
 
     function showResetForm() {
-    loginForm.style.display = "none";
-    signupForm.style.display = "none";
-    document.getElementById("reset-form").style.display = "block";
-    toggleText.style.display = "none"; // hide toggle for login/signup
-    title.textContent = "Reset Password";
-    subtitle.textContent = "Send a password reset link to your email.";
-    responseMsg.innerHTML = '';
-  }
-
-  function showLoginForm() {
-    loginForm.style.display = "block";
-    signupForm.style.display = "none";
-    document.getElementById("reset-form").style.display = "none";
-    toggleText.style.display = "block"; // show toggle again
-    title.textContent = "Welcome Back!";
-    subtitle.textContent = "Sign in to continue to the dashboard.";
-    responseMsg.innerHTML = '';
-  }
-
-  // Handle reset email submission
-  document.getElementById("reset-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("reset-email").value;
-    const button = document.getElementById("reset-form").querySelector("button");
-    button.disabled = true;
-    button.innerHTML = `Sending Email<span class="spinner"></span>`;
-
-    const res = await fetch("/api/v1/auth/forgot-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email })
-    });
-
-    button.disabled = false;
-    button.innerHTML = "Send Email";
-
-    const data = await res.json();
-    if (res.ok) {
-      responseMsg.innerHTML = `<p class="success">${data.message || "Reset link sent!"}</p>`;
-    } else {
-      responseMsg.innerHTML = `<p class="error">${data.msg || "Reset failed."}</p>`;
+      loginForm.style.display = "none";
+      signupForm.style.display = "none";
+      document.getElementById("reset-form").style.display = "block";
+      toggleText.style.display = "none"; // hide toggle for login/signup
+      title.textContent = "Reset Password";
+      subtitle.textContent = "Send a password reset link to your email.";
+      responseMsg.innerHTML = '';
     }
-  });
+
+    function showLoginForm() {
+      loginForm.style.display = "block";
+      signupForm.style.display = "none";
+      document.getElementById("reset-form").style.display = "none";
+      toggleText.style.display = "block"; // show toggle again
+      title.textContent = "Welcome Back!";
+      subtitle.textContent = "Sign in to continue to the dashboard.";
+      responseMsg.innerHTML = '';
+    }
+
+    // Handle reset email submission
+    document.getElementById("reset-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("reset-email").value;
+      const button = document.getElementById("reset-form").querySelector("button");
+      button.disabled = true;
+      button.innerHTML = `Sending Email<span class="spinner"></span>`;
+
+      const res = await fetch("/api/v1/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email })
+      });
+
+      button.disabled = false;
+      button.innerHTML = "Send Email";
+
+      const data = await res.json();
+      if (res.ok) {
+        responseMsg.innerHTML = `<p class="success">${data.message || "Reset link sent!"}</p>`;
+      } else {
+        responseMsg.innerHTML = `<p class="error">${data.msg || "Reset failed."}</p>`;
+      }
+    });
   </script>
 
 </body>
+
 </html>

@@ -120,13 +120,14 @@ exports.getUserByName = async (req, res) => {
 
 exports.editUser = async (req, res) => {
   const {username} = req.params
-  const {usernames,bio,firstName,lastName} = req.body.updatedUser?req.body.updatedUser:req.body
-  // console.log(req.body)
+  const {usernames,bio,firstName,lastName,phone,email} = req.body.updatedUser?req.body.updatedUser:req.body
+  console.log(`User: ${username} is editing the profile`)
+  console.log(req.body)
   if(!username){
     throw new BadRequestError('Please Provide a username')
   }
 
-  const user = await User.findOneAndUpdate({username:username},{username:usernames,bio,firstName,lastName},{ new: true, runValidators: true })//.populate('followers following')
+  const user = await User.findOneAndUpdate({username:username},{username:usernames,bio,firstName,lastName,phone,email},{ new: true, runValidators: true })//.populate('followers following')
   if(!user){
     throw new NotFoundError(`No user with username: ${username}`)
   }
@@ -142,6 +143,7 @@ exports.editUser = async (req, res) => {
 
 exports.editUserProfilePic = async (req, res) => {
   const {username} = req.params
+  console.log(username)
   if(!username){
     throw new BadRequestError('Please Provide a username')
   }

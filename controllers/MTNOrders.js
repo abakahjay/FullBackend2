@@ -71,11 +71,31 @@ const updateOrderStatus = async (req, res) => {
 };
 
 
+// ✅ GET orders by email
+const getOrdersByEmail = async (req, res) => {
+  const { email } = req.params;
+
+  if (!email) {
+    throw new BadRequestError("Email parameter is required");
+  }
+
+  const orders = await Orders.find({ email }).sort('-createdAt');
+
+  if (!orders || orders.length === 0) {
+    throw new NotFoundError(`No orders found for email: ${email}`);
+  }
+
+  res.status(StatusCodes.OK).json(orders);
+};
+
+
+
 module.exports = {
   getAllOrders,
   getOrder,
   createOrder,
   updateOrder,
   deleteOrder,
-  updateOrderStatus
+  updateOrderStatus,
+  getOrdersByEmail
 };

@@ -60,7 +60,11 @@ const muviinRoutes = require("./routes/muviin");
 const ussd = require("./routes/ussd.js");
 const authMiddleware = require("./middleware/auth.js");
 const htmlAuth = require('./middleware/htmlAuth'); // Import it
+const reloadlyRoutes = require('./routes/reloadlyRoutes');
 const { ClerkExpressRequireAuth } = require("@clerk/clerk-sdk-node");//This handles user logins  and stuff
+const paystackRoutes = require("./routes/paystackRouter");
+const bundleRoutes = require('./routes/bundleRoutes');
+const afaRoutes = require('./routes/afa');
 // console.log(ClerkExpressRequireAuth)
 
 
@@ -202,6 +206,17 @@ app.use("/api/v1/ussd", ussdRoutes);
 app.use("/api/v1/muviin", muviinRoutes);
 
 app.use("/api/v1/ussds", ussd);
+app.use('/api/v1/reloadly', reloadlyRoutes);
+
+// Use Routes
+app.use("/api/v1/paystack", paystackRoutes);
+
+app.use('/api/v1/bundles', bundleRoutes);
+
+app.use('/api/v1/afa', afaRoutes);
+
+
+
 
 //This is the login page for the mtn data login
 
@@ -209,29 +224,48 @@ app.use("/api/v1/ussds", ussd);
 // Loosen CSP to allow inline scripts and styles
 app.use((req, res, next) => {
     res.setHeader(
-  "Content-Security-Policy",
-  "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://www.gravatar.com;"
-);
-
+        "Content-Security-Policy",
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
+        "img-src 'self' data: blob: https://www.gravatar.com https://s3.amazonaws.com;"
+    );
     next();
 });
+
 
 app.get('/api/v1/bundle/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'static', 'login.html'));
 });
 
 //This is the dashboard page for the mtn data bundle page
-app.get('/api/v1/bundle/',  htmlAuth, (req, res) => {
+app.get('/api/v1/bundle/', htmlAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'static', 'afrodata.html'));
+});
+
+app.get('/api/v1/buydata/', htmlAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'buydata.html'));
 });
 app.get('/static/favicon.ico', (req, res) => {
     res.sendFile(path.join(__dirname, 'static', 'favicon.ico'));
+});
+
+app.get('/afrodatahome', (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'afrohome.html'));
+});
+
+app.get('/afrodatadashboard',htmlAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'dashboard.html'));
 });
 
 app.get('/resetPassword', (req, res) => {
     res.sendFile(path.join(__dirname, 'static', 'resetPassword.html'));
 });
 
+app.get('/datasuccess', (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'success.html'));
+});
 
 app.get('/font-awesome/css/all.min.css', (req, res) => {
     res.sendFile(path.join(__dirname, 'static', '/font-awesome/css/all.min.css'));
@@ -276,7 +310,7 @@ const start = async () => {
         console.log(process.env.MONGO_URI)
         await connectDB(process.env.MONGO_URI).then(() => {
             console.log('\x1b[36m%s\x1b[0m', '🔄Connected to MongoDB...')
-            console.log('\x1b[36m%s\x1b[0m','🔌 Connecting to:', process.env.MONGO_URI);
+            console.log('\x1b[36m%s\x1b[0m', '🔌 Connecting to:', process.env.MONGO_URI);
 
         })
         await expressOasGenerator.handleResponses(app, {

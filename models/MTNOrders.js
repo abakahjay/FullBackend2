@@ -6,13 +6,15 @@ const MTNOrderSchema = new mongoose.Schema({
     quantity: String,
     network: String,
     price: String,
-    payment: String,
+    payment: String,  // store paymentReference here
     status: {
-    type: String,
-    enum: ['Pending', 'Delivered', 'Failed'],
-    default: 'Pending'
+        type: String,
+        enum: ['Pending', 'Delivered', 'Failed'],
+        default: 'Pending'
     },
     updated: String,
+    email: String,             // optional, new field
+    transactionId: String,     // optional, Paystack transaction ID
 }, { timestamps: true });
 
 module.exports = mongoose.model('MTNOrders', MTNOrderSchema);
