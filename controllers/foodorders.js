@@ -68,7 +68,7 @@ exports.getUserOrders = async (req, res) => {
 
     const totalSpent = orders.reduce((sum, o) => sum + o.totalPrice, 0);
 
-    console.log("\x1b[36m%s\x1b[0m", `${user.name} orders retrieved`);
+    console.log("\x1b[36m%s\x1b[0m", `${user.username} orders retrieved`);
 
     res.status(StatusCodes.OK).json({
         message: `${user.name} orders found`,

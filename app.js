@@ -68,6 +68,7 @@ const afaRoutes = require('./routes/afa');
 const mealRoutes = require("./routes/mealRoutes");
 const foodordersRoutes = require("./routes/foodorders");
 
+const feedbackRoutes = require("./routes/foodFeedback");
 // console.log(ClerkExpressRequireAuth)
 
 
@@ -221,6 +222,9 @@ app.use('/api/v1/bundles', bundleRoutes);
 app.use('/api/v1/afa', afaRoutes);
 
 app.use("/api/v1/foodorders", foodordersRoutes);
+
+app.use("/api/v1/feedbacks", feedbackRoutes);
+
 
 
 
