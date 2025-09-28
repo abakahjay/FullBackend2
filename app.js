@@ -65,6 +65,9 @@ const { ClerkExpressRequireAuth } = require("@clerk/clerk-sdk-node");//This hand
 const paystackRoutes = require("./routes/paystackRouter");
 const bundleRoutes = require('./routes/bundleRoutes');
 const afaRoutes = require('./routes/afa');
+const mealRoutes = require("./routes/mealRoutes");
+const foodordersRoutes = require("./routes/foodorders");
+
 // console.log(ClerkExpressRequireAuth)
 
 
@@ -105,6 +108,8 @@ app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/ai', aiImageRoutes);
 app.use('/api/v1/ai', aiModelRoutes);
 
+app.use("/api/v1/meals", mealRoutes);
+
 // Initialize Passport
 app.use(passport.initialize());
 
@@ -120,12 +125,12 @@ const mongoSanitize = require('express-mongo-sanitize');
 //All this is for license for https secure
 const https = require('https');
 // const sslOptions = {
-//     key: fs.readFileSync('./key.pem'), // Path to your private key
-//     cert: fs.readFileSync('./cert.pem') // Path to your certificate
-// };
-
-
-//This is for the messaging
+    //     key: fs.readFileSync('./key.pem'), // Path to your private key
+    //     cert: fs.readFileSync('./cert.pem') // Path to your certificate
+    // };
+    
+    
+    //This is for the messaging
 const http = require('http');
 // const socketIo = require('socket.io');
 const server = http.createServer(app);
@@ -215,6 +220,7 @@ app.use('/api/v1/bundles', bundleRoutes);
 
 app.use('/api/v1/afa', afaRoutes);
 
+app.use("/api/v1/foodorders", foodordersRoutes);
 
 
 

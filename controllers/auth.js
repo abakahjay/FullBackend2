@@ -98,11 +98,12 @@ const signUp = async (req, res) => {
     //Destructure the req.body
     const { firstName, lastName, username, email, password } = req.body;
     const phone = req.body.phone
+    const role = req.body.role
     console.log(req.body);
 
 
     // Create a new user
-    const newUser = await User.create({ firstName, lastName, username, phone: phone, email, password, isVerified: false, created: new Date(), });
+    const newUser = await User.create({ firstName, lastName, username,role:role, phone: phone, email, password, isVerified: false, created: new Date(), });
 
     const UserId = JSON.stringify(newUser._id);
     console.log(`\x1b[32m%s\x1b[0m`, `New user created with id: ${UserId.split('"')[1]}`);
