@@ -55,7 +55,7 @@
             "stars": 4.8,
             "count": 200
         },
-        "priceCents": 6000,
+        "priceCents": 4000,
         "keywords": [
             "jollof",
             "rice",
@@ -71,7 +71,7 @@
             "stars": 4.6,
             "count": 150
         },
-        "priceCents": 5500,
+        "priceCents": 4000,
         "keywords": [
             "fufu",
             "soup",
@@ -81,13 +81,13 @@
         "type": "dinner"
     },
     {
-        "image": "/waakye.jpg",
+        "image": "/Waakye.jpg",
         "name": "Waakye",
         "rating": {
             "stars": 4.3,
             "count": 110
         },
-        "priceCents": 4500,
+        "priceCents": 4000,
         "keywords": [
             "waakye",
             "rice",
