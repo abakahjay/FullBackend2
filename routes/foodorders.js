@@ -6,7 +6,11 @@ const {
     getAllOrders,
     getTotalSpent,
     deleteOrder,
-    updateOrderStatus, // ✅ Import new controller function
+    updateOrderStatus,
+    getAdminData,     // ✅ New controller
+    getCatererData,
+    getAdminAnalytics,
+    getCatererAnalytics,   // ✅ New controller
 } = require("../controllers/foodorders");
 
 // Create new order (Worker/Admin)
@@ -21,8 +25,16 @@ router.get("/all", getAllOrders);
 // Get total money spent (Admin)
 router.get("/total", getTotalSpent);
 
+// ✅ Admin-only: analytics (users, orders grouped daily, cumulative sum)
+// router.get("/admin-data", getAdminData);
+router.get("/admin-data", getAdminAnalytics);
+
+// ✅ Caterer-only: grouped orders by meal
+// router.get("/caterer-data", getCatererData);
+router.get("/caterer-data", getCatererAnalytics);
+
 // Update order status (Caterer/Admin)
-router.patch("/:orderId/status", updateOrderStatus); // ✅ New route
+router.patch("/:orderId/status", updateOrderStatus);
 
 // Delete order (Admin or Worker for own order)
 router.delete("/:orderId", deleteOrder);
