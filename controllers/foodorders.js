@@ -251,7 +251,7 @@ exports.getCatererData = async (req, res) => {
  */
 exports.getAdminAnalytics = async (req, res) => {
   // Fetch all users
-  const users = await User.find({}, "firstName lastName email profilePic profile_picture_id");
+  const users = await User.find({}, "firstName lastName email profilePic profile_picture_id createdAt");
 
   // Fetch all orders, with feedback if you have a Feedback model
   const orders = await FoodOrders.find().lean(); // lean to get plain JS objects
@@ -284,44 +284,59 @@ exports.getAdminAnalytics = async (req, res) => {
 
   // Convert meals map to array, assemble ordersByUser
   const ordersByUser = Object.values(ordersByUserMap).map((rec) => {
-    return {
-      _id: rec._id,
-      name: (() => {
-        const u = users.find((u) => u._id.toString() === rec._id);
-        return u ? `${u.firstName} ${u.lastName}` : "Unknown";
-      })(),
-      profilePic: (() => {
-        const u = users.find((u) => u._id.toString() === rec._id);
-        return u ? u.profilePic : "";
-      })(),
-      profile_picture_id: (() => {
-        const u = users.find((u) => u._id.toString() === rec._id);
-        return u ? u.profile_picture_id : "";
-      })(),
-      meals: Object.entries(rec.meals).map(([name, qty]) => ({
-        name,
-        qty,
-      })),
-      totalMeals: rec.totalMeals,
-      feedback: rec.feedback,
-    };
-  });
+  const userOrders = orders.filter((o) => o.userId.toString() === rec._id);
+  const latestOrderDate = userOrders.length
+    ? new Date(Math.max(...userOrders.map(o => new Date(o.createdAt)))).toISOString().split("T")[0]
+    : null;
+
+  return {
+    _id: rec._id,
+    name: (() => {
+      const u = users.find((u) => u._id.toString() === rec._id);
+      return u ? `${u.firstName} ${u.lastName}` : "Unknown";
+    })(),
+    profilePic: (() => {
+      const u = users.find((u) => u._id.toString() === rec._id);
+      return u ? u.profilePic : "";
+    })(),
+    profile_picture_id: (() => {
+      const u = users.find((u) => u._id.toString() === rec._id);
+      return u ? u.profile_picture_id : "";
+    })(),
+    meals: Object.entries(rec.meals).map(([name, qty]) => ({
+      name,
+      qty,
+    })),
+    totalMeals: rec.totalMeals,
+    feedback: rec.feedback,
+    latestOrderDate,   // ✅ so React can group properly
+  };
+});
+
 
   // Build users overview
-  const usersOverview = users.map((u) => {
-    const rec = ordersByUserMap[u._id.toString()] || { totalMeals: 0 };
-    return {
-      _id: u._id.toString(),
-      name: `${u.firstName} ${u.lastName}`,
-      email: u.email,
-      profilePic: u.profilePic || "",
-      profile_picture_id: u.profile_picture_id || "",
-      ordersCount: rec.totalMeals, // or count of orders if you want that
-      totalSpent: orders
-        .filter((o) => o.userId.toString() === u._id.toString())
-        .reduce((sum, o) => sum + (o.totalPrice || 0), 0),
-    };
-  });
+  // Build users overview
+const usersOverview = users.map((u) => {
+  const rec = ordersByUserMap[u._id.toString()] || { totalMeals: 0 };
+
+  // find latest order for this user
+  const userOrders = orders.filter((o) => o.userId.toString() === u._id.toString());
+  const latestOrderDate = userOrders.length
+    ? new Date(Math.max(...userOrders.map(o => new Date(o.createdAt)))).toISOString().split("T")[0]
+    : null;
+
+  return {
+    _id: u._id.toString(),
+    name: `${u.firstName} ${u.lastName}`,
+    email: u.email,
+    profilePic: u.profilePic || "",
+    profile_picture_id: u.profile_picture_id || "",
+    ordersCount: rec.totalMeals,
+    totalSpent: userOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0),
+    createdAt: u.createdAt ? u.createdAt.toISOString() : null,   // ✅ include user creation date
+    latestOrderDate,                                            // ✅ include latest order date
+  };
+});
 
   res.status(StatusCodes.OK).json({
     users: usersOverview,
