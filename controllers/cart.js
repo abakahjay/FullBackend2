@@ -3,7 +3,7 @@ const { StatusCodes } = require('http-status-codes')
 const Cart = require('../models/Cart')
 const Products = require('../models/Products')
 const Delivery = require('../models/Delivery')
-const dayJs = require('dayJs')
+const dayJs = require('dayjs')
 
 
 //?To get all the carts
