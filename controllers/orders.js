@@ -2,7 +2,7 @@ const Orders = require('../models/Orders')
 const { UnauthenticatedError, BadRequestError, NotFoundError } = require('../errors')
 const { StatusCodes } = require('http-status-codes');
 const Delivery = require('../models/Delivery');
-const dayJs = require('dayJs');
+const dayJs = require('dayjs');
 const today=new dayJs();
 
 
