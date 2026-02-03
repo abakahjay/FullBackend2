@@ -38,6 +38,10 @@ const foodordersSchema = new mongoose.Schema(
             type: Date,
             default: () => new Date(), // Automatically set today's date
         },
+        dayOfWeek: {
+            type: String,
+            enum: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+},
     },
     { timestamps: true }
 );

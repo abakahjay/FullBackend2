@@ -1,3 +1,4 @@
+// models/Meals.js
 const mongoose = require('mongoose');
 
 const MealSchema = new mongoose.Schema(
@@ -11,7 +12,6 @@ const MealSchema = new mongoose.Schema(
             required: [true, 'Please enter the meal name'],
         },
         rating: {
-            type: Object,
             stars: { type: Number, default: 4.0 },
             count: { type: Number, default: 50 },
         },
@@ -19,21 +19,25 @@ const MealSchema = new mongoose.Schema(
             type: Number,
             required: [true, 'Please enter the meal price in cents'],
         },
-        keywords: [
+        keywords: [String],
+        type: {
+            type: String, // breakfast, lunch, dinner
+        },
+        weekSchedule: [
             {
-                type: String,
+                day: {
+                    type: String,
+                    enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+                },
+                available: { type: Boolean, default: false },
             },
         ],
-        type: {
-            type: String, // e.g. "breakfast", "lunch", "dinner", "snack"
-        },
-
         createdBy: {
             type: mongoose.Types.ObjectId,
             ref: 'User',
         },
     },
-    { timestamps: true } // Adds createdAt & updatedAt fields automatically
+    { timestamps: true }
 );
 
 const Meals = mongoose.model('Meals', MealSchema);

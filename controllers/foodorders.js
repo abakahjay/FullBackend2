@@ -5,10 +5,18 @@ const { UnauthenticatedError, BadRequestError, NotFoundError } = require("../err
 const { StatusCodes } = require("http-status-codes");
 const User = require("../models/User");
 const Meal = require("../models/Meals");
+const WeeklyMenu = require("../models/WeeklyMenu"); // ✅ add at top after other imports
 
 /**
  * Worker/Admin: Place a new order
  */
+
+// const cutoffHour = 11; // 11 AM local
+
+// function isBefore11AM() {
+//   const now = new Date();
+//   return now.getHours() < cutoffHour;
+// }
 exports.createOrder = async (req, res) => {
     const { userId, mealId, quantity } = req.body;
 
@@ -389,4 +397,203 @@ exports.getCatererAnalytics = async (req, res) => {
   }
 
   res.status(StatusCodes.OK).json(result);
+};
+
+
+
+
+
+const cutoffHour = 11; // 11 AM
+
+function isBefore11AM() {
+  const now = new Date();
+  return now.getHours() < cutoffHour;
+}
+
+function isBeforeSunday11AM() {
+  const now = new Date();
+  return now.getDay() === 0 && now.getHours() < cutoffHour;
+}
+
+/* ======================================================
+   🧑‍🍳 Caterer: Set Weekly Menu (3+ meals per day)
+====================================================== */
+exports.setWeeklyMenu = async (req, res) => {
+  const { weekStart, weekEnd, mealsByDay, createdBy } = req.body;
+
+  if (!weekStart || !weekEnd || !mealsByDay || !createdBy)
+    throw new BadRequestError("Missing required fields.");
+
+  const user = await User.findById(createdBy);
+  if (!user || user.role !== "caterer")
+    throw new UnauthenticatedError("Only caterers can set the menu.");
+
+  // Validate that each day has at least 3 meals
+  const days = Object.keys(mealsByDay);
+  for (const day of days) {
+    const meals = mealsByDay[day];
+    if (!Array.isArray(meals) || meals.length < 3) {
+      throw new BadRequestError(`${day} must have at least 3 meals.`);
+    }
+  }
+
+  const newMenu = new WeeklyMenu({
+    weekStart,
+    weekEnd,
+    mealsByDay,
+    createdBy,
+  });
+
+  await newMenu.save();
+  res
+    .status(StatusCodes.CREATED)
+    .json({ message: "Weekly menu created successfully", menu: newMenu });
+};
+
+/* ======================================================
+   👷 Worker/Admin: Create Weekly Order
+====================================================== */
+/* ======================================================
+   👷 Worker/Admin: Create Weekly Order
+   Each day (Mon–Sun) = ₵40 per meal
+====================================================== */
+exports.createWeeklyOrder = async (req, res) => {
+  const { userId, weeklyMeals } = req.body; // { monday: mealId, ... }
+
+  if (!userId || !weeklyMeals)
+    throw new BadRequestError("Please provide userId and weeklyMeals");
+
+  const user = await User.findById(userId);
+  if (!user) throw new NotFoundError("User not found");
+
+  const latestMenu = await WeeklyMenu.findOne().sort({ createdAt: -1 });
+  if (!latestMenu)
+    throw new BadRequestError("No weekly menu available yet.");
+
+  const validDays = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
+
+  // ✅ Validate that each chosen meal belongs to weekly menu
+  for (const day of validDays) {
+    if (!weeklyMeals[day]) continue;
+    const availableMeals = latestMenu.mealsByDay[day]?.map((id) =>
+      id.toString()
+    );
+    if (!availableMeals || !availableMeals.includes(weeklyMeals[day].toString())) {
+      throw new BadRequestError(`Meal chosen for ${day} is not in the current menu.`);
+    }
+  }
+
+  // ✅ Prevent update after Sunday 11 AM unless admin
+  if (!isBeforeSunday11AM() && user.role !== "admin") {
+    throw new BadRequestError(
+      "You can only update weekly orders before Sunday 11 AM."
+    );
+  }
+
+  // ✅ Determine Monday–Sunday range
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(monday.getDate() - monday.getDay() + 1); // get Monday of this week
+  monday.setHours(0, 0, 0, 0);
+
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+
+  // ✅ Delete existing orders for that week (to replace)
+  await FoodOrders.deleteMany({
+    userId,
+    createdAt: { $gte: monday, $lt: sunday },
+  });
+
+  // ✅ Create daily orders with ₵40 per day
+  const fixedDailyPrice = 40;
+  const createdOrders = [];
+
+  for (const day of validDays) {
+    const mealId = weeklyMeals[day];
+    if (!mealId) continue;
+
+    const meal = await Meal.findById(mealId);
+    if (!meal) continue;
+
+    const dateOfDay = new Date(monday);
+    const offset = validDays.indexOf(day);
+    dateOfDay.setDate(monday.getDate() + offset);
+
+    const order = new FoodOrders({
+      userId,
+      mealId: meal._id,
+      mealName: meal.name,
+      quantity: 1,
+      pricePerMeal: fixedDailyPrice,   // ✅ Fixed 40 cedis per meal
+      totalPrice: fixedDailyPrice,
+      orderedByRole: user.role,
+      date: dateOfDay,
+      createdAt: dateOfDay,
+    });
+
+    await order.save();
+    createdOrders.push(order);
+  }
+
+  res.status(StatusCodes.CREATED).json({
+    message: "Weekly order placed successfully (₵40/day)",
+    createdOrders,
+  });
+};
+
+
+/* ======================================================
+   👷 Worker/Admin: Update Daily Order (before 11 AM)
+====================================================== */
+/* ======================================================
+   👷 Worker/Admin: Update Daily Order (before 11 AM)
+====================================================== */
+exports.updateDailyOrder = async (req, res) => {
+  const { userId, newMealId } = req.body;
+  if (!userId || !newMealId)
+    throw new BadRequestError("Please provide userId and newMealId");
+
+  const user = await User.findById(userId);
+  if (!user) throw new NotFoundError("User not found");
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const order = await FoodOrders.findOne({
+    userId,
+    createdAt: { $gte: today, $lt: tomorrow },
+  });
+
+  if (!order) throw new NotFoundError("No order found for today");
+
+  if (!isBefore11AM() && user.role !== "admin") {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      error: "You can no longer update today's order (past 11 AM).",
+    });
+  }
+
+  const meal = await Meal.findById(newMealId);
+  if (!meal) throw new NotFoundError("Meal not found");
+
+  order.mealId = meal._id;
+  order.mealName = meal.name;
+  order.pricePerMeal = 40;    // ✅ Fixed 40 cedis per day
+  order.totalPrice = 40;
+  await order.save();
+
+  res
+    .status(StatusCodes.OK)
+    .json({ message: "Daily order updated successfully (₵40)", order });
 };
